@@ -47,13 +47,13 @@ def main():
             cfg.TRAIN.RESUME_TRAIN = True
 
     # Set GPU and distributed data parallel to use
-    init_distributed_mode()
+    # init_distributed_mode()
 
     # Print config
-    if torch.distributed.get_rank() == 0:
-        print('Use config:')
-        pprint(cfg)
-
+    # if torch.distributed.get_rank() == 0:
+    print('Use config:')
+    pprint(cfg)
+    #
     # Start train/test process
     if not args.test:
         train_net(cfg)

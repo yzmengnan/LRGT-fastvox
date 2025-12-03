@@ -13,8 +13,8 @@ class Merger(torch.nn.Module):
     def __init__(self, cfg):
         super(Merger, self).__init__()
         
-        if torch.distributed.get_rank() == 0:
-            print('Merger: Similar Token Merger (STM)')
+        # if torch.distributed.get_rank() == 0:
+        #     print('Merger: Similar Token Merger (STM)')
         
         self.blocks = torch.nn.ModuleList(
             [STMBlock(dim=cfg.NETWORK.MERGER.STM.DIM, out_token_len=token_len,

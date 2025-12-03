@@ -220,8 +220,8 @@ class Decoder(torch.nn.Module):
 
         if cfg.NETWORK.DECODER.VOXEL_SIZE % 4 != 0:
             raise ValueError('voxel_size must be dividable by patch_num')
-        if torch.distributed.get_rank() == 0:
-            print('Decoder: Progressive Upsampling Transformer-Based')
+        # if torch.distributed.get_rank() == 0:
+        #     print('Decoder: Progressive Upsampling Transformer-Based')
 
         self.patch_num = 4 ** 3
         self.trans_patch_size = 4

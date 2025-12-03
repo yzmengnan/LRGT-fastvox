@@ -86,8 +86,8 @@ class LGAtention(Attention):
         super(LGAtention, self).__init__(*args, **kwargs)
         self.IFS = torch.nn.Conv2d(self.dim, self.dim, kernel_size=3, padding=1, groups=self.dim)
 
-        if torch.distributed.get_rank() == 0:
-            print('Attention type: Long-Range Grouping Attention')
+        # if torch.distributed.get_rank() == 0:
+        #     print('Attention type: Long-Range Grouping Attention')
 
     def InterViewSignature(self, x):
         B, H, N, C = x.shape

@@ -97,7 +97,8 @@ def test_net(cfg,
             test_iou.append(torch.cat(sample_iou).unsqueeze(dim=0))
             taxonomies_list.append(torch.tensor(list(taxonomies.keys()).index(taxonomy_id)).unsqueeze(dim=0))
 
-            if torch.distributed.get_rank() == 0:
+            # if torch.distributed.get_rank() == 0:
+            if True:
                 # Print sample loss and IoU
                 if (sample_idx + 1) % 50 == 0:
                     for_tqdm.update(50)
@@ -115,7 +116,8 @@ def test_net(cfg,
 
     torch.cuda.synchronize(torch.device(torch.cuda.current_device()))
 
-    if torch.distributed.get_rank() == 0:
+    # if torch.distributed.get_rank() == 0:
+    if True:
         # Output testing results
         mean_iou = pipeline.output(cfg, test_iou, taxonomies)
 

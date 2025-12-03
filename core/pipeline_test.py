@@ -32,11 +32,11 @@ def load_data(cfg, test_data_loader=None, test_file_num=None):
         
         dataset, test_file_num = utils.data_loaders.DATASET_LOADER_MAPPING[cfg.DATASET.TEST_DATASET](cfg).get_dataset(
             utils.data_loaders.DatasetType.TEST, cfg.CONST.N_VIEWS_RENDERING, test_transforms)
-        test_sampler = torch.utils.data.distributed.DistributedSampler(dataset, shuffle=False)
+        # test_sampler = torch.utils.data.distributed.DistributedSampler(dataset, shuffle=False)
         test_data_loader = torch.utils.data.DataLoader(
             dataset=dataset,
             batch_size=1,
-            sampler=test_sampler,
+            # sampler=test_sampler,
             num_workers=cfg.CONST.NUM_WORKER,
             pin_memory=True)
     return taxonomies, test_data_loader, test_file_num
@@ -45,13 +45,17 @@ def load_data(cfg, test_data_loader=None, test_file_num=None):
 def setup_network(cfg, encoder, decoder, merger):
     device = torch.cuda.current_device()
 
-    encoder = torch.nn.parallel.DistributedDataParallel(encoder.cuda(), device_ids=[device], output_device=device)
-    decoder = torch.nn.parallel.DistributedDataParallel(decoder.cuda(), device_ids=[device], output_device=device)
-    merger = torch.nn.parallel.DistributedDataParallel(merger.cuda(), device_ids=[device], output_device=device)
+    encoder = torch.nn.DataParallel(encoder).cuda()
+    decoder = torch.nn.DataParallel(decoder).cuda()
+    merger = torch.nn.DataParallel(merger).cuda()
+    # encoder = torch.nn.parallel.DistributedDataParallel(encoder.cuda(), device_ids=[device], output_device=device)
+    # decoder = torch.nn.parallel.DistributedDataParallel(decoder.cuda(), device_ids=[device], output_device=device)
+    # merger = torch.nn.parallel.DistributedDataParallel(merger.cuda(), device_ids=[device], output_device=device)
     
     logging.info('Loading weights from %s ...' % cfg.CONST.WEIGHTS)
-    checkpoint = torch.load(cfg.CONST.WEIGHTS, map_location=torch.device(device))
+    checkpoint = torch.load(cfg.CONST.WEIGHTS, map_location=torch.device(device),weights_only=False)
     epoch_idx = checkpoint['epoch_idx']
+
     encoder.load_state_dict(checkpoint['encoder_state_dict'])
     decoder.load_state_dict(checkpoint['decoder_state_dict'])
     merger.load_state_dict(checkpoint['merger_state_dict'])
@@ -61,11 +65,14 @@ def setup_network(cfg, encoder, decoder, merger):
 
 def combine_test_iou(test_iou, taxonomies_list, taxonomies, test_file_num):
     world_size = int(os.environ['WORLD_SIZE'])
-    all_test_iou = [torch.zeros_like(test_iou) for _ in range(world_size)]
-    all_taxonomies_list = [torch.zeros_like(taxonomies_list) for _ in range(world_size)]
-    torch.distributed.all_gather(all_test_iou, test_iou)
-    torch.distributed.all_gather(all_taxonomies_list, taxonomies_list)
-    if torch.distributed.get_rank() == 0:
+    all_test_iou = [test_iou]
+    all_taxonomies_list = [taxonomies_list]
+    # all_test_iou = [torch.zeros_like(test_iou) for _ in range(world_size)]
+    # all_taxonomies_list = [torch.zeros_like(taxonomies_list) for _ in range(world_size)]
+    # torch.distributed.all_gather(all_test_iou, test_iou)
+    # torch.distributed.all_gather(all_taxonomies_list, taxonomies_list)
+    # if torch.distributed.get_rank() == 0:
+    if True:
         redundancy = test_file_num % world_size
         if redundancy == 0:
             redundancy = world_size

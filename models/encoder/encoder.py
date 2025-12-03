@@ -19,8 +19,8 @@ class Encoder(torch.nn.Module):
     def __init__(self, cfg):
         super(Encoder, self).__init__()
 
-        if torch.distributed.get_rank() == 0:
-            print('Base Encoder: VIT')
+        # if torch.distributed.get_rank() == 0:
+        #     print('Base Encoder: VIT')
 
         self.encoder = self.create_model(
             model_name=cfg.NETWORK.ENCODER.VIT.MODEL_NAME,
@@ -256,8 +256,8 @@ class DistilledVisionTransformer(VisionTransformer):
         self.dist_token = torch.nn.Parameter(torch.zeros(1, 1, self.embed_dim))
         num_patches = self.patch_embed.num_patches
         self.pos_embed = torch.nn.Parameter(torch.zeros(1, num_patches + 2, self.embed_dim))
-        if torch.distributed.get_rank() == 0:
-            print('Encoder: Long-Range Grouping Transformer (LRGT)')
+        # if torch.distributed.get_rank() == 0:
+        #     print('Encoder: Long-Range Grouping Transformer (LRGT)')
 
         trunc_normal_(self.dist_token, std=.02)
         trunc_normal_(self.pos_embed, std=.02)
